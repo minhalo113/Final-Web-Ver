@@ -162,6 +162,18 @@ const AddProduct = () => {
 
     const add = (e) => {
         e.preventDefault()
+
+        const colorArr = state.colors.split(',').map(c => c.trim()).filter(Boolean)
+        const typeArr = state.types.split(',').map(t => t.trim()).filter(Boolean)
+        if(colorArr.length !== colorImages.length){
+            toast.error('Number of colors and color images must match')
+            return
+        }
+        if(typeArr.length !== typeImages.length){
+            toast.error('Number of types and type images must match')
+            return
+        }
+
         const formData = new FormData()
         formData.append('name',state.name)
         formData.append('description',state.description)

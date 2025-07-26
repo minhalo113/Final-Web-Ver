@@ -32,6 +32,7 @@ const ProductDisplay = ({item}) => {
     const handleSubmit = (e) => {
         const product = {
             id: _id,
+            cartId: `${_id}-${selectedColor || ''}-${selectedSize || ''}-${selectedType || ''}`,
             img: images,
             name: name,
             price: price,
@@ -82,7 +83,22 @@ const ProductDisplay = ({item}) => {
                             {colorImages.length > 0 ? (
                                 <div className="flex gap-2">
                                     {colorImages.map((img,i) => (
-                                        <img key={i} src={img} onClick={() => setSelectedColor(colors[i] || '')} className={`w-8 h-8 border ${selectedColor === colors[i] ? 'border-black' : 'border-gray-300'} cursor-pointer`} />
+                                        <div key={i} className="flex flex-col items-center w-10">
+                                        <img
+                                            src={img}
+                                            onClick={() => setSelectedColor(colors[i] || '')}
+                                            className={`w-10 h-10 rounded cursor-pointer transition-all duration-200 ease-in-out ${
+                                            selectedColor === colors[i]
+                                                ? 'border-4 border-emerald-500 ring-2 ring-emerald-300'
+                                                : 'border border-gray-300'
+                                            }`}
+                                        />
+                                        {selectedColor === colors[i] && (
+                                            <span className="text-xs font-bold text-black mt-1">
+                                            {selectedColor}
+                                            </span>
+                                        )}
+                                        </div>
                                     ))}
                                 </div>
                             ) : (
@@ -111,10 +127,25 @@ const ProductDisplay = ({item}) => {
                             <span className="font-medium">Type:</span>
                             {typeImages.length > 0 ? (
                                 <div className="flex gap-2">
-                                    {typeImages.map((img,i) => (
-                                        <img key={i} src={img} onClick={() => setSelectedType(types[i] || '')} className={`w-8 h-8 border ${selectedType === types[i] ? 'border-black' : 'border-gray-300'} cursor-pointer`} />
+                                    {typeImages.map((img, i) => (
+                                        <div key={i} className="flex flex-col items-center w-10">
+                                        <img
+                                            src={img}
+                                            onClick={() => setSelectedType(types[i] || '')}
+                                            className={`w-10 h-10 rounded cursor-pointer transition-all duration-200 ease-in-out ${
+                                            selectedType === types[i]
+                                                ? 'border-4 border-emerald-500 ring-2 ring-emerald-300'
+                                                : 'border border-gray-300'
+                                            }`}
+                                        />
+                                        {selectedType === types[i] && (
+                                            <span className="mt-1 text-xs font-bold text-black">
+                                            {selectedType}
+                                            </span>
+                                        )}
+                                        </div>
                                     ))}
-                                </div>
+                                    </div>
                             ) : (
                                 <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="border border-slate-300 rounded px-2 py-1">
                                     {types.map(t => (
@@ -139,7 +170,7 @@ const ProductDisplay = ({item}) => {
                     </div>
 
                     {/* Stock display */}
-                    {/* {stock !== undefined && (
+                    {stock !== undefined && (
                         <div className="flex items-center gap-4 text-lg text-gray-800">
                         <i className="icofont-box text-3xl text-[#D09A40]" />
                         <span>
@@ -152,7 +183,7 @@ const ProductDisplay = ({item}) => {
                             )}
                         </span>
                         </div>
-                    )} */}
+                    )}
                  </div>
 
                 <div style= {{display: "flex", justifyContent: "space-between", width: "100%" }}>

@@ -139,6 +139,18 @@ const EditProduct = () => {
 
     const update = (e) =>{
         e.preventDefault()
+
+        const colorArr = state.colors.split(',').map(c => c.trim()).filter(Boolean)
+        const typeArr = state.types.split(',').map(t => t.trim()).filter(Boolean)
+        if(colorArr.length !== (colorImageShow ? colorImageShow.length : 0)){
+            toast.error('Number of colors and color images must match')
+            return
+        }
+        if(typeArr.length !== (typeImageShow ? typeImageShow.length : 0)){
+            toast.error('Number of types and type images must match')
+            return
+        }
+
         const obj = {
             name: state.name,
             description: state.description,
@@ -243,6 +255,7 @@ const EditProduct = () => {
             </div> 
 
             <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
+                <span>Product Image</span>
                 {
                     imageShow && imageShow.length > 0 && imageShow.map((img, i) => <div>
                         <label htmlFor={i}>
@@ -255,6 +268,7 @@ const EditProduct = () => {
             </div>
 
             <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
+                <span>Color Image</span>
                 {
                     colorImageShow && colorImageShow.length > 0 && colorImageShow.map((img, i) => <div>
                         <label htmlFor={`c-${i}`}>
@@ -267,6 +281,7 @@ const EditProduct = () => {
             </div>
 
             <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
+                <span>Type Image</span>
                 {
                     typeImageShow && typeImageShow.length > 0 && typeImageShow.map((img, i) => <div>
                         <label htmlFor={`t-${i}`}>
