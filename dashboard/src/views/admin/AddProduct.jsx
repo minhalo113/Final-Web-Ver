@@ -32,8 +32,9 @@ const AddProduct = () => {
         brand: "",
         stock: "",
         colors: '',
-        types: '',
-        sizes: ''
+        sizes: '',
+        deliveryTime: '',
+        colorPrices: ''
     })
 
     const inputHandle = (e) => {
@@ -65,8 +66,9 @@ const AddProduct = () => {
     const [imageShow, setImageShow] = useState([])
     const [colorImages, setColorImages] = useState([])
     const [colorImageShow, setColorImageShow] = useState([])
-    const [typeImages, setTypeImages] = useState([])
-    const [typeImageShow, setTypeImageShow] = useState([])
+
+    const [videos, setVideos] = useState([])
+    const [videoNames, setVideoNames] = useState([])
 
     const imageHandle = (e) => {
         const files = e.target.files
@@ -95,17 +97,16 @@ const AddProduct = () => {
         }
     }
 
-    const typeImageHandle = (e) => {
+    const videoHandle = (e) => {
         const files = e.target.files
         const length = files.length
-
-        if(length > 0){
-            setTypeImages([...typeImages, ...files])
-            let imageUrl = []
-            for (let i = 0; i < length; ++i){
-                imageUrl.push({url: URL.createObjectURL(files[i])})
+        if (length > 0){
+            setVideos([...videos, ...files])
+            let names = []
+            for (let i = 0; i < length ; ++i){
+                names.push(files[i].name)
             }
-            setTypeImageShow([...typeImageShow, ...imageUrl])
+            setVideoNames([...videoNames, ...names])
         }
     }
 
@@ -122,15 +123,16 @@ const AddProduct = () => {
                 brand: "",
                 stock: "",
                 colors: '',
-                types: '',
-                sizes: ''
+                sizes: '',
+                deliveryTime: '',
+                colorPrices: ''
             }) 
             setImageShow([])
             setImages([])
             setColorImageShow([])
             setColorImages([])
-            setTypeImageShow([])
-            setTypeImages([])
+            setVideos([])
+            setVideoNames([])
             setCategory('')
         }
         if (errorMessage) {
@@ -160,17 +162,34 @@ const AddProduct = () => {
         setImageShow(filterImageUrl)
     }
 
+        const changeColorImage = (img, index) => {
+        if (img) {
+            let tempUrl = colorImageShow
+            let tempImages = colorImages
+
+            tempImages[index] = img
+            tempUrl[index] = {url: URL.createObjectURL(img)}
+            setColorImageShow([...tempUrl])
+            setColorImages([...tempImages])
+
+        }
+    }
+
+    const removeColorImage = (i) => {
+        const filterImage = colorImages.filter((img,index) => index !== i)
+        const filterImageUrl = colorImageShow.filter((img, index) => index !== i )
+
+        setColorImages(filterImage)
+        setColorImageShow(filterImageUrl)
+    }
+    
     const add = (e) => {
         e.preventDefault()
 
         const colorArr = state.colors.split(',').map(c => c.trim()).filter(Boolean)
-        const typeArr = state.types.split(',').map(t => t.trim()).filter(Boolean)
+
         if(colorArr.length !== colorImages.length){
             toast.error('Number of colors and color images must match')
-            return
-        }
-        if(typeArr.length !== typeImages.length){
-            toast.error('Number of types and type images must match')
             return
         }
 
@@ -180,9 +199,10 @@ const AddProduct = () => {
         formData.append('price',state.price)
         formData.append('stock',state.stock)
         formData.append('discount',state.discount)
+        formData.append('deliveryTime', state.deliveryTime)
+        formData.append('colorPrices', state.colorPrices)
         formData.append('brand',state.brand)
         formData.append('colors', state.colors)
-        formData.append('types', state.types)
         formData.append('sizes', state.sizes)
         formData.append('shopName','Toy Haven') 
         formData.append('category',category)
@@ -194,9 +214,9 @@ const AddProduct = () => {
         for (let i = 0; i < colorImages.length ; ++i ){
             formData.append('colorImages', colorImages[i])
         }
-
-        for (let i = 0; i < typeImages.length ; ++i ){
-            formData.append('typeImages', typeImages[i])
+        
+        for (let i = 0; i < videos.length; ++i){
+            formData.append('videos', videos[i])
         }
 
         dispatch(add_product(formData))
@@ -228,14 +248,10 @@ const AddProduct = () => {
             </div>   
 
             <div className='flex flex-col w-full gap-1'>
-                <label htmlFor='colors'>Colors (comma seperated)</label>
-                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colors} type='text' name='colors' id = 'colors' placeholder='e.g. red, blue'/>
+                <label htmlFor='colors'>Color/Type Options (comma separated)</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colors} type='text' name='colors' id = 'colors' placeholder='e.g. green plush, blue plush'/>
             </div>
 
-            <div className='flex flex-col w-full gap-1'>
-                <label htmlFor='types'>Types (comma seperated)</label>
-                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.types} type='text' name='types' id='types' placeholder='e.g. plush, action figure'/>
-            </div>
             <div className='flex flex-col w-full gap-1'>
                 <label htmlFor='sizes'>Sizes (comma seperated)</label>
                 <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.sizes} type='text' name='sizes' id='sizes' placeholder='e.g. small, large'/>
@@ -285,6 +301,16 @@ const AddProduct = () => {
                 <label htmlFor="discount">Discount</label>
                 <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.discount} type="number" name='discount' id='discount' placeholder='discount by %' />
             </div>   
+            
+            <div className='flex flex-col w-full gap-1'>
+                <label htmlFor="deliveryTime">Estimated Delivery</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.deliveryTime} type="text" name='deliveryTime' id='deliveryTime' placeholder='e.g. 3-5 days' />
+            </div>
+
+            <div className='flex flex-col w-full gap-1'>
+                <label htmlFor='colorPrices'>Color Prices (color:price)</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colorPrices} type='text' name='colorPrices' id='colorPrices' placeholder='red:20, blue:25'/>
+            </div>
 
         </div>
 
@@ -296,7 +322,7 @@ const AddProduct = () => {
 
             <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
                {
-                imageShow.map((img,i) => <div className='h-[180px] relative'>
+               imageShow.map((img,i) => <div key={i} className='h-[180px] relative'>
                     <label htmlFor={i}>
                         <img className='w-full h-full rounded-sm' src={img.url} alt="" />
                     </label>
@@ -315,9 +341,12 @@ const AddProduct = () => {
 
            <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
               {
-               colorImageShow.map((img, i) => <div className='h-[120px] relative'>
-                   <img className='w-full h-full rounded-sm' src = {img.url} alt = ''>
-                   </img>
+                colorImageShow.map((img, i) => <div key={i} className='h-[120px] relative'>
+                   <label htmlFor={`color-${i}`}>
+                       <img className='w-full h-full rounded-sm' src = {img.url} alt = '' />
+                   </label>
+                   <input onChange={(e)=> changeColorImage(e.target.files[0], i)} type = 'file' id={`color-${i}`} className='hidden'/>
+                   <span onClick={()=> removeColorImage(i)} className='p-2 z-10 cursor-pointer bg-slate-700 hover:shadow-lg hover:shadow-slate-400/50 text-white absolute top-1 right-1 rounded-full'><IoMdCloseCircle /></span>
                </div>)
               }
 
@@ -328,19 +357,13 @@ const AddProduct = () => {
               <input className='hidden' onChange={colorImageHandle} multiple type = 'file' id = 'colorImage'/>
            </div>
 
-           <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
-              {
-               typeImageShow.map((img, i) => <div className='h-[120px] relative'>
-                    <img className='w-full h-full rounded-sm' src = {img.url} alt = '' />
-                </div>)
-               }
-
-               <label className='flex justify-center items-center flex-col h-[120px] cursor-pointer border border-dashed hover:border-red-500 w-full text-[#d0d2d6]' htmlFor='typeImage'>
-                    <span><IoMdImages/></span>
-                    <span>Type Image</span>
-               </label>
-               <input className='hidden' onChange={typeImageHandle} multiple type='file' id='typeImage'/>
-            </div>
+            <div className='flex flex-col w-full gap-1 mb-4 text-[#d0d2d6]'>
+                <label htmlFor='video'>Product Videos</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={videoHandle} multiple type='file' id='video' />
+                <div className='mt-2'>
+                    {videoNames.map((n,i) => <p key={i}>{n}</p>)}
+                </div>
+           </div>
 
             <div className='flex'>
             <button disabled={loader ? true : false}  className='bg-red-500 w-[280px] hover:shadow-red-300/50 hover:shadow-lg text-white rounded-md px-7 py-2 mb-3'>

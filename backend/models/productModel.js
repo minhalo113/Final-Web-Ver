@@ -29,14 +29,6 @@ const productSchema = new Schema({
         type: [String],
         default: []
     },
-    typeImages: {
-        type: [String],
-        default: []
-    },
-    types: {
-        type: [String],
-        default: []
-    },
     sizes: {
         type: [String],
         default: []
@@ -77,14 +69,6 @@ const productSchema = new Schema({
         type: Object,
         default: {}
     },
-    sizePrices: {
-        type: Object,
-        default: {}
-    },
-    typePrices: {
-        type: Object,
-        default: {}
-    },
     ratings: [
         {
             user: {type: Schema.Types.ObjectId, ref: 'Customer'},
@@ -95,6 +79,7 @@ const productSchema = new Schema({
             name: {type: String, required: false},
             rating: {type: Number, required: true, min: 1, max: 5},
             comment: String,
+            images: {type: [String], default: []},
             createdAt: {type: Date, default: Date.now}
         }
     ],

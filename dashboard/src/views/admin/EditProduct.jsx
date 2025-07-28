@@ -36,8 +36,9 @@ const EditProduct = () => {
         brand: "",
         stock: "",
         colors: '',
-        types: '',
-        sizes: ''
+        sizes: '',
+        deliveryTime: '',
+        colorPrices: ''
     })
 
     const inputHandle = (e) => {
@@ -66,7 +67,6 @@ const EditProduct = () => {
     }
     const [imageShow, setImageShow] = useState([])
     const [colorImageShow, setColorImageShow] = useState([])
-    const [typeImageShow, setTypeImageShow] = useState([])
   
     const changeImage = (img, files) => {
         if (files.length > 0) {
@@ -91,17 +91,6 @@ const EditProduct = () => {
         }
     }
 
-    const changeTypeImage = (img, files) => {
-        if(files.length > 0){
-            dispatch(product_image_update({
-                oldImage: img,
-                newImage: files[0],
-                productId,
-                imageType: 'type'
-            }))
-        }
-    }
-
     useEffect(() => {
         setState({
             name: product.name,
@@ -111,13 +100,13 @@ const EditProduct = () => {
             brand: product.brand,
             stock: product.stock,
             colors: Array.isArray(product.colors) ? product.colors.join(',') : '',
-            types: Array.isArray(product.types) ? product.types.join(',') : '',
-            sizes: Array.isArray(product.sizes) ? product.sizes.join(',') : ''
+            sizes: Array.isArray(product.sizes) ? product.sizes.join(',') : '',
+            deliveryTime: product.deliveryTime || '',
+            colorPrices: product.colorPrices ? Object.entries(product.colorPrices).map(([k,v]) => `${k}:${v}`).join(',') : ''
         })
         setCategory(product.category)
         setImageShow(product.images)
         setColorImageShow(product.colorImages || [])
-        setTypeImageShow(product.typeImages || [])
     },[product])
 
     useEffect(() => {
@@ -141,13 +130,8 @@ const EditProduct = () => {
         e.preventDefault()
 
         const colorArr = state.colors.split(',').map(c => c.trim()).filter(Boolean)
-        const typeArr = state.types.split(',').map(t => t.trim()).filter(Boolean)
         if(colorArr.length !== (colorImageShow ? colorImageShow.length : 0)){
             toast.error('Number of colors and color images must match')
-            return
-        }
-        if(typeArr.length !== (typeImageShow ? typeImageShow.length : 0)){
-            toast.error('Number of types and type images must match')
             return
         }
 
@@ -159,8 +143,9 @@ const EditProduct = () => {
             brand: state.brand,
             stock: state.stock,
             colors: state.colors,
-            types: state.types,
             sizes: state.sizes,
+            deliveryTime: state.deliveryTime,
+            colorPrices: state.colorPrices,
             category: category,
             productId: productId
         }
@@ -188,14 +173,10 @@ const EditProduct = () => {
             </div>   
 
             <div className='flex flex-col w-full gap-1'>
-                <label htmlFor= "colors">Colors (comma seperated)</label>
-                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colors} type="text" name='colors' id='colors' placeholder='e.g. red, blue' />
+                <label htmlFor= "colors">Color/Type Options (comma separated)</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colors} type="text" name='colors' id='colors' placeholder='e.g. green plush, blue plush' />
             </div>
 
-            <div className='flex flex-col w-full gap-1'>
-                <label htmlFor="types">Types (comma seperated)</label>
-                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.types} type="text" name='types' id='types' placeholder='e.g. plush, action figure' />
-            </div>
             <div className='flex flex-col w-full gap-1'>
                 <label htmlFor="sizes">Sizes (comma seperated)</label>
                 <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.sizes} type="text" name='sizes' id='sizes' placeholder='e.g. small, large' />
@@ -244,7 +225,17 @@ const EditProduct = () => {
             <div className='flex flex-col w-full gap-1'>
                 <label htmlFor="discount">Discount</label>
                 <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.discount} type="number" name='discount' id='discount' placeholder='discount by %' />
-            </div>   
+            </div>
+
+            <div className='flex flex-col w-full gap-1'>
+                <label htmlFor="deliveryTime">Estimated Delivery</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.deliveryTime} type="text" name='deliveryTime' id='deliveryTime' placeholder='e.g. 3-5 days' />
+            </div>
+
+            <div className='flex flex-col w-full gap-1'>
+                <label htmlFor='colorPrices'>Color Prices (color:price)</label>
+                <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' onChange={inputHandle} value={state.colorPrices} type='text' name='colorPrices' id='colorPrices' placeholder='red:20, blue:25'/>
+            </div>
 
         </div>
 
@@ -278,18 +269,6 @@ const EditProduct = () => {
                     </div> )
                 }
 
-            </div>
-
-            <div className='grid lg:grid-cols-4 grid-cols-1 md:grid-cols-3 sm:grid-cols-2 sm:gap-4 md:gap-4 gap-3 w-full text-[#d0d2d6] mb-4'>
-                <span>Type Image</span>
-                {
-                    typeImageShow && typeImageShow.length > 0 && typeImageShow.map((img, i) => <div>
-                        <label htmlFor={`t-${i}`}>
-                            <img src={img} alt='' />
-                        </label>
-                        <input onChange={(e) => changeTypeImage(img, e.target.files)} type="file" id={`t-${i}`} className='hidden' />
-                    </div> )
-                }
             </div>
 
             <div className='flex'>

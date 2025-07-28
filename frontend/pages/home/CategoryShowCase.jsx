@@ -98,7 +98,22 @@ const CategoryShowCase = () => {
                                         <Link href = {`/shop/${product._id.toString()}`} className='ca-name'>{product.seller}</Link>
                                         </div>
                                         <div className='course-price' style={{color: "#DCA54A"}}>
-                                            ${product.price}
+                                            {(() => {
+                                                const hasVariant = product.colors && product.colors.length > 0 && product.colorPrices && Object.keys(product.colorPrices).length > 0;
+                                                if(hasVariant){
+                                                    const prices = product.colors.map(c => product.colorPrices[c]).filter(v=>v!==undefined);
+                                                    const min = Math.min(...prices);
+                                                    const max = Math.max(...prices);
+                                                    const minBase = min.toFixed(2);
+                                                    const maxBase = max.toFixed(2);
+                                                    if(minBase === maxBase){
+                                                        return `$${minBase}`;
+                                                    }else{
+                                                        return `$${minBase} - $${maxBase}`;
+                                                    }
+                                                }
+                                                return `$${product.price}`;
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
